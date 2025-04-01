@@ -30,26 +30,19 @@ Resources:
         Variables:
           NODE_ENV: production
   
-  NuxtLambdaPermissionForInvoke:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref NuxtLambdaFunction
-      Principal: "*"
-  
   NuxtLambdaPermissionForUrlInvoke:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunctionUrl
       FunctionName: !Ref NuxtLambdaFunction
-      Principal: "*"
-      FunctionUrlAuthType: NONE
+      Principal: "cloudfront.amazonaws.com"
+      SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${NuxtDistribution.Id}"
   
   NuxtLambdaFunctionUrl:
     Type: AWS::Lambda::Url
     Properties:
       TargetFunctionArn: !GetAtt NuxtLambdaFunction.Arn
-      AuthType: NONE
+      AuthType: AWS_IAM
       Cors:
         AllowOrigins:
           - '*'
@@ -65,6 +58,35 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${NuxtLambdaFunction}
       RetentionInDays: 7
 
+  NuxtDistributionOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: nuxt-demo-oac
+        OriginAccessControlOriginType: lambda
+        SigningBehavior: always
+        SigningProtocol: sigv4
+        Description: "OAC of NuxtLambdaFunction"
+
+  NuxtDistributionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaInvokePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunctionUrl
+                Resource: !GetAtt NuxtLambdaFunction.Arn
+
   NuxtDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -79,6 +101,7 @@ Resources:
         Origins:
           - Id: NuxtLambdaOrigin
             DomainName: !Select [2, !Split ["/", !GetAtt NuxtLambdaFunctionUrl.FunctionUrl]]
+            OriginAccessControlId: !GetAtt NuxtDistributionOAC.Id
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
 
