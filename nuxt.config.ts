@@ -5,9 +5,6 @@ export default defineNuxtConfig({
   ssr: true,
   nitro: {
     preset: 'aws-lambda',
-    serveStatic: true,
-    output: {
-      publicDir: '.output/server'
-    },
+    serveStatic: false,
   },
 })

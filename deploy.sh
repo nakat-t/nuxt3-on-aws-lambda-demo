@@ -29,3 +29,5 @@ CLOUDFRONT_DOMAIN=$(aws cloudformation describe-stacks \
     --output text)
 
 echo "CloudFront distribution URL: https://$CLOUDFRONT_DOMAIN"
+
+aws s3 sync ./.output/public s3://nuxt-demo-public-bucket/ --delete
