@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ data.greet }}
+    {{ data?.greet }}
   </div>
 </template>
 <script setup lang="ts">
