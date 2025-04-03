@@ -28,6 +28,6 @@ CLOUDFRONT_DOMAIN=$(aws cloudformation describe-stacks \
     --query "Stacks[0].Outputs[?OutputKey=='NuxtDistributionDomainName'].OutputValue" \
     --output text)
 
-echo "CloudFront distribution URL: https://$CLOUDFRONT_DOMAIN"
+echo "CloudFront distribution URL: https://$CLOUDFRONT_DOMAIN" >&2
 
 aws s3 sync ./.output/public s3://nuxt-demo-public-bucket/ --delete

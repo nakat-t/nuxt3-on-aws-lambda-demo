@@ -54,7 +54,7 @@ npm install
 Create an S3 bucket to store deployment packages:
 
 ```bash
-REGION=YOUR_REGION ./setup-s3.sh
+REGION=YOUR_REGION ./setup.sh
 ```
 
 In `REGION`, specify the region where you want to create the S3 bucket. This will create an S3 bucket named `nuxt-demo-s3-bucket`. This will be used by the **aws cloudformation package** command used to upload the Lambda binary.
@@ -83,7 +83,7 @@ You can customize with the following environment variables:
 Upon successful deployment, the CloudFront distribution URL will be displayed in the console.
 
 > [!NOTE]  
-> The script for cleaning up AWS resources is not included. To delete the deployment, please delete the CloudFormation stack and the S3 bucket created with ./setup-s3.sh manually. This will completely clear the environment.
+> When you are done using the demo and want to remove the deployed AWS resource, use `REGION=YOUR_REGION . /teardown.sh`.
 
 ## Project Structure
 
@@ -96,7 +96,8 @@ nuxt3-on-aws-lambda-demo/
 │       └── greet.ts         # Server-side API endpoint
 ├── cfn.yaml                 # CloudFormation template
 ├── build.sh                 # Build script
-├── setup-s3.sh              # S3 bucket preparation script
+├── setup.sh                 # Build/deploy preparation script
+├── teardown.sh              # Delete deployed AWS resources and build output
 └── deploy.sh                # Deployment script
 ```
 
